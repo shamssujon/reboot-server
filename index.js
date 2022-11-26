@@ -29,8 +29,7 @@ const client = new MongoClient(uri, {
 
 const run = async () => {
 	try {
-
-        const database = client.db("rebootDB");
+		const database = client.db("rebootDB");
 		const usersCollection = database.collection("users");
 
 		// Get user from client, send to DB
@@ -40,6 +39,11 @@ const run = async () => {
 			res.send(result);
 		});
 
+		// Get all users from DB
+		app.get("/users", async (req, res) => {
+			const users = await usersCollection.find({}).toArray();
+			res.send(users);
+		});
 	} finally {
 	}
 };
