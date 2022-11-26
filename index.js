@@ -39,9 +39,16 @@ const run = async () => {
 			res.send(result);
 		});
 
-		// Get all users from DB
+		// Get users from DB with/without query
 		app.get("/users", async (req, res) => {
-			const users = await usersCollection.find({}).toArray();
+			const role = req.query.role;
+			let query = {};
+
+			if (role) {
+				query = { role: role };
+			}
+
+			const users = await usersCollection.find(query).toArray();
 			res.send(users);
 		});
 	} finally {
