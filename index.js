@@ -35,6 +35,16 @@ const run = async () => {
 		// Get user from client, send to DB
 		app.post("/users", async (req, res) => {
 			const user = req.body;
+
+            // Check for existing user
+            const filter = {email: user.email}
+            const existingUser = await usersCollection.findOne(filter)
+
+            // Prevent insert existing user to DB
+            if(existingUser) {
+                return res.send({message: "Existing user!"});
+            }
+
 			const result = await usersCollection.insertOne(user);
 			res.send(result);
 		});
