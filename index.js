@@ -31,19 +31,20 @@ const run = async () => {
 	try {
 		const database = client.db("rebootDB");
 		const usersCollection = database.collection("users");
+		const productCategoryCollection = database.collection("productCategories");
 
 		// Get user from client, send to DB
 		app.post("/users", async (req, res) => {
 			const user = req.body;
 
-            // Check for existing user
-            const filter = {email: user.email}
-            const existingUser = await usersCollection.findOne(filter)
+			// Check for existing user
+			const filter = { email: user.email };
+			const existingUser = await usersCollection.findOne(filter);
 
-            // Prevent insert existing user to DB
-            if(existingUser) {
-                return res.send({message: "Existing user!"});
-            }
+			// Prevent insert existing user to DB
+			if (existingUser) {
+				return res.send({ message: "Existing user!" });
+			}
 
 			const result = await usersCollection.insertOne(user);
 			res.send(result);
@@ -60,6 +61,19 @@ const run = async () => {
 
 			const users = await usersCollection.find(query).toArray();
 			res.send(users);
+		});
+
+		// Add a category to DB
+		app.post("/categories", async (req, res) => {
+			const category = req.body;
+			const result = await productCategoryCollection.insertOne(category);
+			res.send(result);
+		});
+
+		// Get all categories
+		app.get("/categories", async (req, res) => {
+			const categories = await productCategoryCollection.find({}).toArray();
+			res.send(categories);
 		});
 	} finally {
 	}
