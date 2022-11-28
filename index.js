@@ -34,8 +34,6 @@ const run = async () => {
 		const productCategoryCollection = database.collection("productCategories");
 		const productsCollection = database.collection("products");
 
-		//=== Users API START ===//
-
 		// Get user from client, send to DB
 		app.post("/users", async (req, res) => {
 			const user = req.body;
@@ -66,13 +64,11 @@ const run = async () => {
 			res.send(users);
 		});
 
-		//=== Users API END ===//
-
-		//=== Category API START ===//
-
 		// Add a category to DB
 		app.post("/categories", async (req, res) => {
 			const category = req.body;
+			const categorySlug = category.name.trim().split(' ').join('-').toLowerCase();
+			category.slug = categorySlug
 			const result = await productCategoryCollection.insertOne(category);
 			res.send(result);
 		});
@@ -83,13 +79,10 @@ const run = async () => {
 			res.send(categories);
 		});
 
-		//=== Category API END ===//
-
-		//=== Product API START ===//
-
 		// Add a product to DB
 		app.post("/products", async (req, res) => {
 			const product = req.body;
+			product.postingDate = new Date();
 			const result = await productsCollection.insertOne(product);
 			res.send(result);
 		});
@@ -100,11 +93,22 @@ const run = async () => {
 
 			const limit = parseInt(req.query.limit);
 
-			const products = await productsCollection.find(query).limit(limit ? limit : 0).toArray();
+			const products = await productsCollection
+				.find(query)
+				.limit(limit ? limit : 0)
+				.toArray();
 			res.send(products);
 		});
 
-		//=== Product API END ===//
+		
+		// Get category wise products
+		app.get("/products/:categorySlug", async (req, res) => {
+			const categorySlug = req.params.categorySlug;
+			const filter = { category: categorySlug };
+			const categoryWiseProducts = await productsCollection.find(filter).toArray();
+			console.log(categoryWiseProducts);
+			res.send(categoryWiseProducts);
+		});
 	} finally {
 	}
 };
