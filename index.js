@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
 const app = express();
@@ -67,8 +67,8 @@ const run = async () => {
 		// Add a category to DB
 		app.post("/categories", async (req, res) => {
 			const category = req.body;
-			const categorySlug = category.name.trim().split(' ').join('-').toLowerCase();
-			category.slug = categorySlug
+			const categorySlug = category.name.trim().split(" ").join("-").toLowerCase();
+			category.slug = categorySlug;
 			const result = await productCategoryCollection.insertOne(category);
 			res.send(result);
 		});
@@ -100,7 +100,6 @@ const run = async () => {
 			res.send(products);
 		});
 
-		
 		// Get category wise products
 		app.get("/products/:categorySlug", async (req, res) => {
 			const categorySlug = req.params.categorySlug;
@@ -108,6 +107,14 @@ const run = async () => {
 			const categoryWiseProducts = await productsCollection.find(filter).toArray();
 			console.log(categoryWiseProducts);
 			res.send(categoryWiseProducts);
+		});
+
+		// Get a single product from DB
+		app.get("/product/:id", async (req, res) => {
+			const id = req.params.id;
+			const query = { _id: ObjectId(id) };
+			const product = await productsCollection.findOne(query);
+			res.send(product);
 		});
 	} finally {
 	}
