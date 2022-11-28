@@ -32,6 +32,9 @@ const run = async () => {
 		const database = client.db("rebootDB");
 		const usersCollection = database.collection("users");
 		const productCategoryCollection = database.collection("productCategories");
+		const productsCollection = database.collection("products");
+
+		//=== Users API START ===//
 
 		// Get user from client, send to DB
 		app.post("/users", async (req, res) => {
@@ -62,6 +65,10 @@ const run = async () => {
 			const users = await usersCollection.find(query).toArray();
 			res.send(users);
 		});
+		
+		//=== Users API END ===//
+
+		//=== Category API START ===//
 
 		// Add a category to DB
 		app.post("/categories", async (req, res) => {
@@ -75,6 +82,20 @@ const run = async () => {
 			const categories = await productCategoryCollection.find({}).toArray();
 			res.send(categories);
 		});
+
+		//=== Category API END ===//
+
+		//=== Product API START ===//
+		
+		// Add a product to DB
+		app.post("/products", async (req, res) => {
+			const product = req.body;
+			const result = await productsCollection.insertOne(product);
+			res.send(result);
+		});
+
+		//=== Product API END ===//
+
 	} finally {
 	}
 };
