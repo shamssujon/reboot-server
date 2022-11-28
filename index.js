@@ -65,7 +65,7 @@ const run = async () => {
 			const users = await usersCollection.find(query).toArray();
 			res.send(users);
 		});
-		
+
 		//=== Users API END ===//
 
 		//=== Category API START ===//
@@ -86,7 +86,7 @@ const run = async () => {
 		//=== Category API END ===//
 
 		//=== Product API START ===//
-		
+
 		// Add a product to DB
 		app.post("/products", async (req, res) => {
 			const product = req.body;
@@ -94,8 +94,17 @@ const run = async () => {
 			res.send(result);
 		});
 
-		//=== Product API END ===//
+		// Get all products
+		app.get("/products", async (req, res) => {
+			let query = {};
 
+			const limit = parseInt(req.query.limit);
+
+			const products = await productsCollection.find(query).limit(limit ? limit : 0).toArray();
+			res.send(products);
+		});
+
+		//=== Product API END ===//
 	} finally {
 	}
 };
