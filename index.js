@@ -33,6 +33,7 @@ const run = async () => {
 		const usersCollection = database.collection("users");
 		const productCategoryCollection = database.collection("productCategories");
 		const productsCollection = database.collection("products");
+		const ordersCollection = database.collection("orders");
 
 		// Get user from client, send to DB
 		app.post("/users", async (req, res) => {
@@ -115,6 +116,15 @@ const run = async () => {
 			const query = { _id: ObjectId(id) };
 			const product = await productsCollection.findOne(query);
 			res.send(product);
+		});
+
+		// Add a order to DB
+		app.post("/orders", async (req, res) => {
+			const order = req.body;
+			order.orderDate = new Date();
+			console.log(order);
+			const result = await ordersCollection.insertOne(order);
+			res.send(result);
 		});
 	} finally {
 	}
