@@ -122,9 +122,17 @@ const run = async () => {
 		app.post("/orders", async (req, res) => {
 			const order = req.body;
 			order.orderDate = new Date();
-			console.log(order);
 			const result = await ordersCollection.insertOne(order);
 			res.send(result);
+		});
+
+		// Get orders from DB
+		app.get("/orders", async (req, res) => {
+			const email = req.query.email;
+			console.log(email);
+			const filter = { buyerEmail: email };
+			const orders = await ordersCollection.find(filter).toArray();
+			res.send(orders);
 		});
 	} finally {
 	}
