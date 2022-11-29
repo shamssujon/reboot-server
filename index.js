@@ -94,9 +94,18 @@ const run = async () => {
 
 		// Get all products
 		app.get("/products", async (req, res) => {
+			const limit = parseInt(req.query.limit);
+			const email = req.query.email;
 			let query = {};
 
-			const limit = parseInt(req.query.limit);
+			// Qeury with email 
+			// "seller.email" is for matching nested object filed
+			// https://www.geeksforgeeks.org/mongodb-query-embedded-documents-using-mongo-shell/
+			if (email) {
+				query = { "seller.email": email };
+			}
+
+			console.log(query);
 
 			const products = await productsCollection
 				.find(query)
