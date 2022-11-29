@@ -76,7 +76,11 @@ const run = async () => {
 
 		// Get all categories
 		app.get("/categories", async (req, res) => {
-			const categories = await productCategoryCollection.find({}).toArray();
+			const limit = parseInt(req.query.limit);
+			const categories = await productCategoryCollection
+				.find({})
+				.limit(limit ? limit : 0)
+				.toArray();
 			res.send(categories);
 		});
 
