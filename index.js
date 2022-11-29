@@ -65,6 +65,14 @@ const run = async () => {
 			res.send(users);
 		});
 
+		// Check user role
+		app.get("/users/role/:email", async (req, res) => {
+			const email = req.params.email;
+			const query = { email: email };
+			const user = await usersCollection.findOne(query);
+			res.send({ userRole: user?.role });
+		});
+
 		// Add a category to DB
 		app.post("/categories", async (req, res) => {
 			const category = req.body;
@@ -98,7 +106,7 @@ const run = async () => {
 			const email = req.query.email;
 			let query = {};
 
-			// Qeury with email 
+			// Qeury with email
 			// "seller.email" is for matching nested object filed
 			// https://www.geeksforgeeks.org/mongodb-query-embedded-documents-using-mongo-shell/
 			if (email) {
