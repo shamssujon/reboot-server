@@ -257,6 +257,23 @@ const run = async () => {
 			const products = await wishlistCollection.find(filter).toArray();
 			res.send(products);
 		});
+
+		// Update product for advertise
+		app.put("/orders/payment/:id", async (req, res) => {
+			const id = req.params.id;
+			console.log(id);
+			const filter = { _id: ObjectId(id) };
+			const options = {};
+
+			const updatedDoc = {
+				$set: {
+					orderStatus: "paid",
+				},
+			};
+
+			const result = await ordersCollection.updateOne(filter, updatedDoc, options);
+			res.send(result);
+		});
 	} finally {
 	}
 };
