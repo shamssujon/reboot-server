@@ -146,9 +146,11 @@ const run = async () => {
 
 		// Get all products
 		app.get("/products", async (req, res) => {
+			let query = {};
 			const limit = parseInt(req.query.limit);
 			const email = req.query.email;
-			let query = {};
+			const status = req.query.status;
+			const sponsored = req.query.sponsored;
 
 			// Qeury with email
 			// "seller.email" is for matching nested object filed
@@ -157,7 +159,15 @@ const run = async () => {
 				query = { "seller.email": email };
 			}
 
-			console.log(query);
+			// filter avialable products
+			if(status) {
+				query = { status: status };
+			}
+
+			// Qeury for sponsored products
+			if (sponsored === "true") {
+				query = { sponsored: true };
+			}
 
 			const products = await productsCollection
 				.find(query)
