@@ -174,6 +174,22 @@ const run = async () => {
 			res.send(result);
 		});
 
+		// Update product for advertise
+		app.put("/products/makesponsored/:id", async (req, res) => {
+			const id = req.params.id;
+			const filter = { _id: ObjectId(id) };
+			const options = { upsert: true };
+
+			const updatedDoc = {
+				$set: {
+					sponsored: true,
+				},
+			};
+
+			const result = await productsCollection.updateOne(filter, updatedDoc, options);
+			res.send(result);
+		});
+
 		// Get category wise products
 		app.get("/products/:categorySlug", async (req, res) => {
 			const categorySlug = req.params.categorySlug;
