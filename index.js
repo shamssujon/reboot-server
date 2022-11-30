@@ -166,6 +166,14 @@ const run = async () => {
 			res.send(products);
 		});
 
+		// Delete a product from DB
+		app.delete("/products/:id", async (req, res) => {
+			const id = req.params.id;
+			const query = { _id: ObjectId(id) };
+			const result = await productsCollection.deleteOne(query);
+			res.send(result);
+		});
+
 		// Get category wise products
 		app.get("/products/:categorySlug", async (req, res) => {
 			const categorySlug = req.params.categorySlug;
