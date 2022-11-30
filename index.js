@@ -55,7 +55,7 @@ const run = async () => {
 		const productsCollection = database.collection("products");
 		const ordersCollection = database.collection("orders");
 
-		// Send access token 
+		// Send access token
 		app.get("/jwt", async (req, res) => {
 			const email = req.query.email;
 			const query = { email: email };
@@ -63,7 +63,7 @@ const run = async () => {
 
 			// if a user has found in the usersCollection, generate a token
 			if (user) {
-				const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: "7d" });
+				const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: "72h" });
 				return res.send({ accessToken: token });
 			}
 
@@ -99,6 +99,14 @@ const run = async () => {
 
 			const users = await usersCollection.find(query).toArray();
 			res.send(users);
+		});
+
+		// Delete user from DB
+		app.delete("/users/:id", async (req, res) => {
+			const id = req.params.id;
+			const query = { _id: ObjectId(id) };
+			const result = await usersCollection.deleteOne(query);
+			res.send(result);
 		});
 
 		// Check user role
@@ -184,15 +192,8 @@ const run = async () => {
 		});
 
 		// Get orders from DB
-		app.get("/orders", verifyJWT, async (req, res) => {
+		app.get("/orders", async (req, res) => {
 			const email = req.query.email;
-			const authorization = req.headers.authorization;
-
-			const decodedEmail = req.decoded.email;
-			if (email !== decodedEmail) {
-				return res.status(403).send({ message: "Forbidden Access" });
-			}
-
 			const filter = { buyerEmail: email };
 			const orders = await ordersCollection.find(filter).toArray();
 			res.send(orders);
