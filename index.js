@@ -54,6 +54,7 @@ const run = async () => {
 		const productCategoryCollection = database.collection("productCategories");
 		const productsCollection = database.collection("products");
 		const ordersCollection = database.collection("orders");
+		const wishlistCollection = database.collection("wishlist");
 
 		// Send access token
 		app.get("/jwt", async (req, res) => {
@@ -239,6 +240,22 @@ const run = async () => {
 			const query = { _id: ObjectId(id) };
 			const result = await ordersCollection.deleteOne(query);
 			res.send(result);
+		});
+
+		// Add to wishlist
+		app.post("/wishlist", async (req, res) => {
+			const product = req.body;
+			product.wishlistDate = new Date();
+			const result = await wishlistCollection.insertOne(product);
+			res.send(result);
+		});
+
+		// Get Wishlisted products from DB
+		app.get("/wishlist", async (req, res) => {
+			const email = req.query.email;
+			const filter = { buyerEmail: email };
+			const products = await wishlistCollection.find(filter).toArray();
+			res.send(products);
 		});
 	} finally {
 	}
