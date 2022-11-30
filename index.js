@@ -160,7 +160,7 @@ const run = async () => {
 			}
 
 			// filter avialable products
-			if(status) {
+			if (status) {
 				query = { status: status };
 			}
 
@@ -231,6 +231,14 @@ const run = async () => {
 			const filter = { buyerEmail: email };
 			const orders = await ordersCollection.find(filter).toArray();
 			res.send(orders);
+		});
+
+		// Delete a order from DB
+		app.delete("/orders/:id", async (req, res) => {
+			const id = req.params.id;
+			const query = { _id: ObjectId(id) };
+			const result = await ordersCollection.deleteOne(query);
+			res.send(result);
 		});
 	} finally {
 	}
