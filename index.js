@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 
@@ -27,6 +28,25 @@ const client = new MongoClient(uri, {
 	serverApi: ServerApiVersion.v1,
 });
 
+// Verify JWT
+const verifyJWT = (req, res, next) => {
+	const authHeader = req.headers.authorization;
+
+	if (!authHeader) {
+		res.status(401).send("Unauthorized access");
+	}
+
+	const token = authHeader.split(" ")[1];
+
+	jwt.verify(token, process.env.ACCESS_TOKEN, (error, decoded) => {
+		if (error) {
+			return res.status(403).send({ message: "Forbidden Access" });
+		}
+		req.decoded = decoded;
+		next();
+	});
+};
+
 const run = async () => {
 	try {
 		const database = client.db("rebootDB");
@@ -34,6 +54,22 @@ const run = async () => {
 		const productCategoryCollection = database.collection("productCategories");
 		const productsCollection = database.collection("products");
 		const ordersCollection = database.collection("orders");
+
+		// Send access token 
+		app.get("/jwt", async (req, res) => {
+			const email = req.query.email;
+			const query = { email: email };
+			const user = await usersCollection.findOne(query);
+
+			// if a user has found in the usersCollection, generate a token
+			if (user) {
+				const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, { expiresIn: "7d" });
+				return res.send({ accessToken: token });
+			}
+
+			// if user not user in the DB, send a 401/403 status
+			res.status(403).send({ accessToken: "" });
+		});
 
 		// Get user from client, send to DB
 		app.post("/users", async (req, res) => {
@@ -148,9 +184,15 @@ const run = async () => {
 		});
 
 		// Get orders from DB
-		app.get("/orders", async (req, res) => {
+		app.get("/orders", verifyJWT, async (req, res) => {
 			const email = req.query.email;
-			console.log(email);
+			const authorization = req.headers.authorization;
+
+			const decodedEmail = req.decoded.email;
+			if (email !== decodedEmail) {
+				return res.status(403).send({ message: "Forbidden Access" });
+			}
+
 			const filter = { buyerEmail: email };
 			const orders = await ordersCollection.find(filter).toArray();
 			res.send(orders);
